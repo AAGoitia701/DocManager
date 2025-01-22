@@ -1,0 +1,25 @@
+﻿@using DocManager.Model.Models.DTOs;
+@model User
+@{
+    ViewData["Title"] = "CREATE USER";
+}
+
+<h1 class="bg-info text-white">Create User</h1>
+<a asp-action="Index" class="btn btn-secondary">Back</a>
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form method="post">
+    <div class="form-group">
+        <label asp-for="User_Nombre"></label>
+        <input asp-for="User_Nombre" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="User_Email"></label>
+        <input asp-for="User_Email" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="User_Password"></label>
+        <input asp-for="User_Password"class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>

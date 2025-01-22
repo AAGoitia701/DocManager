@@ -1,0 +1,53 @@
+﻿@using DocManager.Model.Models
+@using DocManager.Model.Models.DTOs
+@using DocManager.Pagination
+@model PaginatedList<User>
+@{
+    ViewData["Title"] = "READ USER";
+}
+<h1 class="bg-info text-white">Usuarios</h1>
+<a asp-action="Create" class="btn btn-secondary">Crear un Ususario</a>
+<form asp-action="Search"  method="get">
+    <input name="userEmail" />
+    <button type="submit">Búsqueda por email</button>
+</form>
+<table class="table table-sm table-bordered">
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Email</th>
+    </tr>
+    @foreach (var user in Model)
+    {
+    <tr>
+        <td>@user.User_Id</td>
+        <td>@user.User_Nombre</td>
+        <td>@user.User_Email</td>
+        <td class="btn btn-sm btn-primary">
+                <a asp-action="Update" asp-route-id="@user.User_Id">Actualizar Usuario</a>
+        </td>
+            <td class="btn btn-sm btn-primary">
+                <a asp-action="Delete" asp-route-id="@user.User_Id">Eliminar Usuario</a>
+            </td>
+    </tr>
+    }
+</table>
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @nextDisabled">
+    Next
+</a>
