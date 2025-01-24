@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -23,5 +25,8 @@ namespace DocManager.Model.Models.DTOs
         [Required(ErrorMessage = "La contraseña es un campo requerido")]
         public string User_Password { get; set; }
 
+        public string RoleName { get; set; }
+        [ValidateNever]
+        public IEnumerable<IdentityRole> RoleList {  get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using DocManager.Model.Mappers;
+﻿using DocManager.DataAccess;
+using DocManager.Model.Mappers;
 using DocManager.Model.Models;
 using DocManager.Model.Models.DTOs;
 using DocManager.Pagination;
@@ -16,11 +17,14 @@ namespace DocManager.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IPasswordHasher<ApplicationUser> _passwordHasher;
-
-        public AdminController(UserManager<ApplicationUser> usrMngr, IPasswordHasher<ApplicationUser> passHash)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ApplicationDbContext _context;
+        public AdminController(UserManager<ApplicationUser> usrMngr, IPasswordHasher<ApplicationUser> passHash, RoleManager<IdentityRole> roleMngr, ApplicationDbContext cont)
         {
             _userManager = usrMngr;
             _passwordHasher = passHash;
+            _roleManager = roleMngr;
+            _context = cont;
         }
         public async Task<IActionResult> Index(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {
@@ -43,19 +47,62 @@ namespace DocManager.Controllers
 
             //return View(usersList);
         }
-        [Authorize]
+
+        public async Task<IActionResult> Create()
+        {
+            var roles = await _roleManager.Roles.ToListAsync();
+            var user = new User
+            {
+                RoleList = (IEnumerable<IdentityRole>)roles
+            };
+
+            return View(user);
+
+        }
+
+
+        [HttpPost] //crear user
         public async Task<IActionResult> Create(User user)
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser appUser = UserMapper.FromUserToAppUser(user);
+                ApplicationUser appUser = UserMapper.FromUserToAppUser(user); 
 
                 IdentityResult result = await _userManager.CreateAsync(appUser, user.User_Password);
 
                 if (result.Succeeded)
                 {
                     //Asignamos el Id de appUser a user.
-                    user.User_Id = appUser.Id; ;
+                    user.User_Id = appUser.Id;
+
+                    if (!String.IsNullOrEmpty(user.RoleName)) 
+                    {
+                        await _userManager.AddToRoleAsync(appUser, user.RoleName);
+
+                        if(user.RoleName == "Medico")
+                        {
+                            var medico = new Medico
+                            {
+                                medico_correo = user.User_Email,
+                                medico_nombreCompleto = user.User_Nombre,
+                            };
+                            await _context.AddAsync(medico);
+
+                            if (user.RoleName == "Paciente"){
+                                var paciente = new Paciente
+                                {
+                                    paciente_correoElectronico = user.User_Email,
+                                    paciente_nombreCompleto = user.User_Nombre,
+
+                                };
+                                await _context.AddAsync(paciente);
+                            }
+
+                            _context.SaveChanges();
+                        }
+                        
+                    }
+
 
                     return RedirectToAction("Index");
                 }
@@ -74,6 +121,7 @@ namespace DocManager.Controllers
                 }
             }
 
+            user.RoleList = await _roleManager.Roles.ToListAsync();
             return View(user);
         }
 
