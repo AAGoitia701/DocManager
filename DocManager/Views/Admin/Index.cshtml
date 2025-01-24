@@ -16,6 +16,7 @@
         <th>ID</th>
         <th>Nombre</th>
         <th>Email</th>
+        <th>Rol</th>
     </tr>
     @foreach (var user in Model)
     {
@@ -23,6 +24,7 @@
         <td>@user.User_Id</td>
         <td>@user.User_Nombre</td>
         <td>@user.User_Email</td>
+        <td>@user.RoleName</td>
         <td class="btn btn-sm btn-primary">
                 <a asp-action="Update" asp-route-id="@user.User_Id">Actualizar Usuario</a>
         </td>
@@ -30,7 +32,7 @@
                 <a asp-action="Delete" asp-route-id="@user.User_Id">Eliminar Usuario</a>
             </td>
     </tr>
-    }
+  }
 </table>
 @{
     var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";

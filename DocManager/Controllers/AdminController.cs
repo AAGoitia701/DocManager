@@ -40,7 +40,18 @@ namespace DocManager.Controllers
 
             var usersDB = await _userManager.Users.ToListAsync();
 
-            var usersList = usersDB.Select(x => UserMapper.FromAppUserToUser(x)).ToList();
+            var usersList = new List<User>();
+            foreach (var user in usersDB)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                var mappedUser = UserMapper.FromAppUserToUser(user);
+
+                mappedUser.RoleName = string.Join(",", roles);  
+                usersList.Add(mappedUser);
+
+            }
+
+            //var usersList = usersDB.Select(x => UserMapper.FromAppUserToUser(x)).ToList();
 
             int pageSize = 3;
             return View(await PaginatedList<User>.CreateAsync(usersList, pageNumber ?? 1, pageSize));
@@ -79,16 +90,18 @@ namespace DocManager.Controllers
                     {
                         await _userManager.AddToRoleAsync(appUser, user.RoleName);
 
-                        if(user.RoleName == "Medico")
+                        switch (user.RoleName) //añade rol a user
                         {
-                            var medico = new Medico
-                            {
-                                medico_correo = user.User_Email,
-                                medico_nombreCompleto = user.User_Nombre,
-                            };
-                            await _context.AddAsync(medico);
+                            case "Medico":
+                                var medico = new Medico
+                                {
+                                    medico_correo = user.User_Email,
+                                    medico_nombreCompleto = user.User_Nombre,
+                                };
+                                await _context.AddAsync(medico);
+                                break;
 
-                            if (user.RoleName == "Paciente"){
+                            case "Paciente":
                                 var paciente = new Paciente
                                 {
                                     paciente_correoElectronico = user.User_Email,
@@ -96,10 +109,11 @@ namespace DocManager.Controllers
 
                                 };
                                 await _context.AddAsync(paciente);
-                            }
+                                break;
 
                             _context.SaveChanges();
                         }
+
                         
                     }
 
