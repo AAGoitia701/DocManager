@@ -15,7 +15,8 @@ namespace DocManager.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return Redirect("/Identity/Account/Login"); //En vex de mandar al index, redirecciona al login de identity
+
         }
 
         public IActionResult Privacy()
