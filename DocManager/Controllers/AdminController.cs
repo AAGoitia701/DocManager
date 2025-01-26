@@ -40,20 +40,22 @@ namespace DocManager.Controllers
 
             var usersDB = await _userManager.Users.ToListAsync();
 
+            //Para mostrar roles en cada user
             var usersList = new List<User>();
             foreach (var user in usersDB)
             {
-                var roles = await _userManager.GetRolesAsync(user);
+                var roles = await _userManager.GetRolesAsync(user); // Obtener roles del usuario
                 var mappedUser = UserMapper.FromAppUserToUser(user);
 
-                mappedUser.RoleName = string.Join(",", roles);  
-                usersList.Add(mappedUser);
+                mappedUser.RoleName = string.Join(",", roles); // Agregar roles al objeto User -- Join, por si tiene varios roles
+
+                usersList.Add(mappedUser); //añadir 
 
             }
 
             //var usersList = usersDB.Select(x => UserMapper.FromAppUserToUser(x)).ToList();
 
-            int pageSize = 3;
+            int pageSize = 5;
             return View(await PaginatedList<User>.CreateAsync(usersList, pageNumber ?? 1, pageSize));
 
             //return View(usersList);
@@ -90,29 +92,7 @@ namespace DocManager.Controllers
                     {
                         await _userManager.AddToRoleAsync(appUser, user.RoleName);
 
-                        switch (user.RoleName) //añade rol a user
-                        {
-                            case "Medico":
-                                var medico = new Medico
-                                {
-                                    medico_correo = user.User_Email,
-                                    medico_nombreCompleto = user.User_Nombre,
-                                };
-                                await _context.AddAsync(medico);
-                                break;
-
-                            case "Paciente":
-                                var paciente = new Paciente
-                                {
-                                    paciente_correoElectronico = user.User_Email,
-                                    paciente_nombreCompleto = user.User_Nombre,
-
-                                };
-                                await _context.AddAsync(paciente);
-                                break;
-
-                            _context.SaveChanges();
-                        }
+                        await AddUserRoleDataAsync(user);
 
                         
                     }
@@ -139,75 +119,98 @@ namespace DocManager.Controllers
             return View(user);
         }
 
-
+        [HttpGet]
         public async Task<IActionResult> Update(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);  
+            var userDb = await _userManager.FindByIdAsync(id);  
+            var roles = await _roleManager.Roles.ToListAsync();
+            var roleUser = _userManager.GetRolesAsync(userDb).ToString();
             if(id == null)
             {
                 return RedirectToAction("Index");
             }
             else
             {
-                return View(user);
+                var userDto = UserMapper.FromAppUserToUser(userDb);
+                userDto.RoleList = roles;
+                userDto.RoleName = roleUser;
+                return View(userDto);
             }
         }
-
         [HttpPost]
-        public async Task<IActionResult> Update(string id, string email, string password, string nombre)
+        public async Task<IActionResult> Update([FromForm]User user)
         {
-            var userDb = await _userManager.FindByIdAsync(id);
-
-            if (userDb != null)
-            {
-                if (!String.IsNullOrEmpty(email))
-                {
-                    userDb.Email = email;
-                }
-                else
-                {
-                    userDb.Email = userDb.Email;
-                }
-
-                if (!String.IsNullOrEmpty(password))
-                {
-                    userDb.PasswordHash = password;
-                }
-                else
-                {
-                    userDb.PasswordHash = userDb.PasswordHash;
-                }
-                if (!string.IsNullOrEmpty(nombre)) 
-                {
-                    userDb.Nombre = nombre;
-                }
-                else
-                {
-                    userDb.Nombre = userDb.Nombre;
-                }
-
-                if(!String.IsNullOrEmpty(email) || !String.IsNullOrEmpty(password) || !String.IsNullOrEmpty(nombre))
-                {
-                    IdentityResult result = await _userManager.UpdateAsync(userDb);
-
-                    if(result.Succeeded)
-                    {
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        
-                    }
-                }
-
-            }
-            else
+            var userDb = await _userManager.FindByIdAsync(user.User_Id);
+            if (userDb == null)
             {
                 ModelState.AddModelError("", "El usuario no existe");
+                return View();
             }
 
+            // Poblar RoleList para la vista
+            user.RoleList = await _roleManager.Roles.ToListAsync();
+
+            // Actualizar los campos del usuario solo si no están vacíos
+            userDb.Email = !string.IsNullOrEmpty(user.User_Email) ? user.User_Email : userDb.Email;
+            userDb.PasswordHash = !string.IsNullOrEmpty(user.User_Password) ? user.User_Password : userDb.PasswordHash;
+            userDb.Nombre = !string.IsNullOrEmpty(user.User_Nombre) ? user.User_Nombre : userDb.Nombre;
+
+            // Actualizar roles si RoleName no es nulo o vacío
+            if (!string.IsNullOrEmpty(user.RoleName))
+            {
+                var currentRoles = await _userManager.GetRolesAsync(userDb);
+                await _userManager.RemoveFromRolesAsync(userDb, currentRoles); // Eliminar roles actuales
+                await _userManager.AddToRoleAsync(userDb, user.RoleName);      // Asignar nuevo rol
+
+                // Agregar registros adicionales en base al rol
+                await AddUserRoleDataAsync(user);
+            }
+
+            // Guardar los cambios en el usuario
+            var result = await _userManager.UpdateAsync(userDb);
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index");
+            }
+
+            // Si algo falla, devolver la vista con errores
+            ModelState.AddModelError("", "Ocurrió un error al actualizar el usuario");
             return View();
         }
+
+        // Método auxiliar para manejar datos específicos de los roles
+        private async Task AddUserRoleDataAsync(User user)
+        {
+            switch (user.RoleName)
+            {
+                case "Medico":
+                    var medico = new Medico
+                    {
+                        medico_correo = user.User_Email,
+                        medico_nombreCompleto = user.User_Nombre
+                    };
+                    await _context.AddAsync(medico);
+                    break;
+
+                case "Paciente":
+                    var paciente = new Paciente
+                    {
+                        paciente_correoElectronico = user.User_Email,
+                        paciente_nombreCompleto = user.User_Nombre
+                    };
+                    await _context.AddAsync(paciente);
+                    break;
+            }
+
+            await _context.SaveChangesAsync(); // Guardar cambios en la base de datos
+        }
+
+
+
+
+
+
+
 
         public async Task<IActionResult> Delete(string id)
         {

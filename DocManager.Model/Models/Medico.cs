@@ -19,9 +19,6 @@ namespace DocManager.Model.Models
         [Required(ErrorMessage = "Este campo es obligatorio")]
         [MaxLength(50)]
         public string medico_correo { get; set; }
-        [Required(ErrorMessage = "Este campo es obligatorio")]
-        [MaxLength(10)]
-        public string medico_contraseña { get; set; }
 
         // Relación: Un médico tiene muchos pacientes
         public ICollection<Paciente> Pacientes { get; set; }

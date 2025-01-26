@@ -1,29 +1,41 @@
 ﻿@using DocManager.Model.Models
-@model ApplicationUser
+@using DocManager.Model.Models.DTOs
+@model User
 @{
 	ViewData["Title"] = "Actualizar Usuario";
 }
 
-<h1 class="bg-info text-white">Update User</h1>
+<h1 class="bg-info text-white">Actualiza Usuario</h1>
 <a asp-action="Index" class="btn btn-secondary">Back</a>
 <div asp-validation-summary="All" class="text-danger"></div>
 
 <form asp-action="Update" method="post">
 	<div class="form-group">
-		<label asp-for="Id"></label>
-		<input asp-for="Id" class="form-control" disabled />
+		<label asp-for="User_Id"></label>
+		<input asp-for="User_Id" class="form-control" readonly />
 	</div>
 	<div class="form-group">
-		<label asp-for="Nombre"></label>
-		<input asp-for="Nombre" class="form-control" />
+		<label asp-for="User_Nombre"></label>
+		<input asp-for="User_Nombre" class="form-control" />
 	</div>
 	<div class="form-group">
-		<label asp-for="Email"></label>
-		<input asp-for="Email" class="form-control" />
+		<label asp-for="User_Email"></label>
+		<input asp-for="User_Email" class="form-control" />
 	</div>
 	<div class="form-group">
-		<label for="password">Password</label>
-		<input name="password" class="form-control" />
+		<label for="User_Password">Password</label>
+		<input name="User_Password" class="form-control" />
 	</div>
+	<div class="form-group">
+		<label asp-for="RoleName"></label>
+		<select asp-for="RoleName" name="RoleName">
+			@foreach (var role in Model.RoleList)
+			{
+
+				<option value="@role.Name">@role.Name</option>
+			}
+		</select>
+	</div>
+	
 	<button type="submit" class="btn btn-primary">Save</button>
 </form>

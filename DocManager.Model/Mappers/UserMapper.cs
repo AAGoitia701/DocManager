@@ -1,5 +1,6 @@
 ﻿using DocManager.Model.Models;
 using DocManager.Model.Models.DTOs;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,7 @@ namespace DocManager.Model.Mappers
                 Nombre = userDto.User_Nombre,
                 Email = userDto.User_Email,
                 UserName = userDto.User_Email, // Si UserName es el email
+                
             };
         }
     }
