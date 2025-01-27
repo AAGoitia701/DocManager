@@ -93,11 +93,8 @@ namespace DocManager.DataAccess.Migrations
 
             modelBuilder.Entity("DocManager.Model.Models.Medico", b =>
                 {
-                    b.Property<int>("medico_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("medico_id"));
+                    b.Property<string>("medico_id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("medico_correo")
                         .IsRequired()
@@ -119,14 +116,12 @@ namespace DocManager.DataAccess.Migrations
 
             modelBuilder.Entity("DocManager.Model.Models.Paciente", b =>
                 {
-                    b.Property<int>("paciente_id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("paciente_id")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("paciente_id"));
-
-                    b.Property<int>("medico_id")
-                        .HasColumnType("int");
+                    b.Property<string>("medico_id")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("paciente_DNI")
                         .IsRequired()

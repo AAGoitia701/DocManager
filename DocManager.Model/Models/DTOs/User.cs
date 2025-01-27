@@ -25,6 +25,8 @@ namespace DocManager.Model.Models.DTOs
         [Required(ErrorMessage = "La contraseña es un campo requerido")]
         public string User_Password { get; set; }
 
+        public int User_Telefono {  get; set; }  
+
         public string RoleName { get; set; }
         [ValidateNever]
         public IEnumerable<IdentityRole> RoleList {  get; set; }

@@ -11,13 +11,13 @@ namespace DocManager.Model.Models
     public class Paciente
     {
         [Key]
-        public int paciente_id { get; set; }
+        public string paciente_id { get; set; } //de identity
         [Required]
-        public string paciente_nombreCompleto { get; set; }
+        public string paciente_nombreCompleto { get; set; } = "NA";
 
         [Required]
         public DateOnly paciente_fechaNac {  get; set; }
-        public string paciente_estadoCivil { get; set; }
+        public string paciente_estadoCivil { get; set; } = "NA";
         [Required]
         [MaxLength(80)]
         public string paciente_direccion { get; set; }
@@ -30,7 +30,8 @@ namespace DocManager.Model.Models
         [Required]
         public string paciente_DNI { get; set; }
 
-        public int medico_id { get; set; }
+        //public string ApplicationUser_PacienteId { get; set; }
+        public string medico_id { get; set; } //de identity
         public Medico Medico {  get; set; } 
     }
 }

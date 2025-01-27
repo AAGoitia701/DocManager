@@ -11,5 +11,7 @@ namespace DocManager.Model.Models
     public class ApplicationUser:IdentityUser
     {
         public string Nombre { get; set; }
+
+
     }
 }

@@ -22,6 +22,10 @@
         <input asp-for="User_Password"class="form-control" />
     </div>
     <div class="form-group">
+        <label asp-for="User_Telefono"></label>
+        <input asp-for="User_Telefono" class="form-control" />
+    </div>
+    <div class="form-group">
         <label asp-for="RoleName"></label>
         <select asp-for="RoleName">
             @foreach(var role in Model.RoleList){

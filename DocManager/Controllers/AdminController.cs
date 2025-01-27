@@ -168,6 +168,7 @@ namespace DocManager.Controllers
 
             // Guardar los cambios en el usuario
             var result = await _userManager.UpdateAsync(userDb);
+
             if (result.Succeeded)
             {
                 return RedirectToAction("Index");
@@ -187,26 +188,51 @@ namespace DocManager.Controllers
                     var medico = new Medico
                     {
                         medico_correo = user.User_Email,
-                        medico_nombreCompleto = user.User_Nombre
+                        medico_nombreCompleto = user.User_Nombre,
+                        medico_id = user.User_Id,
+                        medico_telefono = user.User_Telefono,
                     };
-                    await _context.AddAsync(medico);
+
+                await _context.AddAsync(medico);
+  
                     break;
 
-                case "Paciente":
+                /*case "Paciente":
                     var paciente = new Paciente
                     {
                         paciente_correoElectronico = user.User_Email,
-                        paciente_nombreCompleto = user.User_Nombre
+                        paciente_nombreCompleto = user.User_Nombre,
+                        paciente_DNI = user.User_DNI,
+                        paciente_direccion = user.User_Direccion 
                     };
                     await _context.AddAsync(paciente);
-                    break;
+                    break;*/
             }
 
             await _context.SaveChangesAsync(); // Guardar cambios en la base de datos
         }
 
 
+        //Metodo auxiliar DNI
+        /*public async Task<IActionResult> checkUserType(User user)
+        {
+            var userDb = await _userManager.FindByIdAsync(user.User_Id);
+            var roles = await _userManager.GetRolesAsync(userDb);
 
+            foreach (var role in roles) 
+            {
+                if(role == "Paciente")
+                {
+                    var pac = new Paciente
+                    {
+                        paciente_DNI = user.User_DNI,
+                        paciente_direccion = user.User_Direccion,
+
+                    };
+                }
+            }
+            return Ok();
+        }*/
 
 
 
